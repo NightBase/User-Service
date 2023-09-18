@@ -1,18 +1,21 @@
 import dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.TCP,
+    transport: Transport.RMQ,
     options: {
-      retryAttempts: 5,
-      retryDelay: 3000,
-      port: 3000,
+      urls: ['amqp://localhost:5672'],
+      queue: 'user_queue',
+      queueOptions: {
+        durable: false,
+      },
     },
   });
   app.enableCors();
