@@ -5,6 +5,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { BROKERS } from './utils/constants';
 
 // V1
 import { UserController } from './api/v1/account.controller';
@@ -22,7 +23,7 @@ import { ACCOUNT_SERVICE } from './utils/constants';
         name: ACCOUNT_SERVICE,
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672/'],
+          urls: BROKERS,
           queue: 'user_queue',
           queueOptions: {
             durable: false,
