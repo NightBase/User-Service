@@ -1,4 +1,4 @@
-export const USER_SERVICE = 'USER_SERVICE';
+export const ACCOUNT_SERVICE = 'ACCOUNT_SERVICE';
 
 export enum HTTP_STATUS {
   OK = 200,
