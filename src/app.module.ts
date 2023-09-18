@@ -7,17 +7,29 @@ import {
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 // V1
-import { UserController } from './api/v1/user.controller';
-import { UserService } from './api/v1/user.service';
+import { UserController } from './api/v1/account.controller';
+import { UserService } from './api/v1/account.service';
 // V1 Middleware
 import { CheckCredentials } from './api/v1/middleware/account';
 
 // Services
-import { USER_SERVICE } from './utils/constants';
+import { ACCOUNT_SERVICE } from './utils/constants';
 
 @Module({
   imports: [
-    ClientsModule.register([{ name: USER_SERVICE, transport: Transport.TCP }]),
+    ClientsModule.register([
+      {
+        name: ACCOUNT_SERVICE,
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672/'],
+          queue: 'user_queue',
+          queueOptions: {
+            durable: false,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService],
