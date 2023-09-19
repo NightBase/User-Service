@@ -32,4 +32,6 @@ jobs:
 
       - name : Create Database
         run: npm run db:generate
+        env:
+          DB_HOST: postgres
      
