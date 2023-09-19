@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-
-// Services
-import { AccountModule } from './api/v1/account.module';
+import { AccountModule } from './api/v1/account/account.module';
+import { TokenModule } from './api/v1/token/token.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     AccountModule,
+    TokenModule,
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST,
@@ -20,6 +21,11 @@ import { AccountModule } from './api/v1/account.module';
       dialectOptions: {
         application_name: 'NightBase-User',
       },
+    }),
+    JwtModule.register({
+      global: true,
+      secret: process.env.ACCESS_TOKEN_SECRET,
+      signOptions: { expiresIn: '10m' },
     }),
   ],
 })
