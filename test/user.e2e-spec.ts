@@ -18,4 +18,8 @@ describe('User Service V1', () => {
   it('[POST] Create User Without Credentials', () => {
     return request(app.getHttpServer()).post('/v1/user').expect(400);
   });
+
+  afterAll(async () => {
+    await app.close();
+  });
 });
