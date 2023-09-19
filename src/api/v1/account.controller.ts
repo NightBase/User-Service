@@ -1,13 +1,13 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { ClientProxy, MessagePattern } from '@nestjs/microservices';
-import { ACCOUNT_SERVICE } from '../../utils/constants';
-import { UserService } from './account.service';
+import { ACCOUNT_SERVICE } from '@/utils/constants';
+import { AccountService } from './account.service';
 
 @Controller('v1/user')
-export class UserController {
+export class AccountController {
   constructor(
     @Inject(ACCOUNT_SERVICE) private readonly user_service: ClientProxy,
-    private readonly userService: UserService,
+    private readonly accountService: AccountService,
   ) {}
 
   @Post()
@@ -17,6 +17,6 @@ export class UserController {
 
   @MessagePattern({ cmd: 'createUser' })
   async createUserHandler(@Body() body) {
-    return this.userService.createUser(body);
+    return this.accountService.createUser(body);
   }
 }
