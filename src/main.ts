@@ -22,6 +22,6 @@ async function bootstrap() {
   app.enableCors();
   await app.startAllMicroservices();
   await app.listen(process.env.PORT || 5000);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`🚀 Account service is running on: ${await app.getUrl()}`);
 }
 bootstrap();
