@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { AppModule } from './app.module';
-import { BROKERS } from './utils/constants';
+import { BROKERS, ACCOUNT_QUEUE_NAME } from './utils/constants';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
@@ -12,12 +12,13 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: BROKERS,
-      queue: 'user_queue',
+      queue: ACCOUNT_QUEUE_NAME,
       queueOptions: {
         durable: false,
       },
     },
   });
+
   app.enableCors();
   await app.startAllMicroservices();
   await app.listen(process.env.PORT || 5000);
