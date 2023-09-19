@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "db:generate": "npx ts-node src/utils/createDB.ts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -24,9 +25,11 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/microservices": "^10.2.5",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/sequelize": "^10.0.0",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.3",
     "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },
