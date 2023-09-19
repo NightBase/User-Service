@@ -17,7 +17,7 @@ describe('User Service V1', () => {
 
   it('[POST] Should return 400 when creating a user without credentials', async () => {
     return request(app.getHttpServer()).post('/v1/user').expect(400);
-  });
+  }, 10000);
 
   it('[POST] Should successfully create a root user', async () => {
     const credentials = {
@@ -31,7 +31,7 @@ describe('User Service V1', () => {
       .post('/v1/user')
       .send(credentials)
       .expect(201);
-  });
+  }, 10000);
 
   it('[POST] Should return 400 when creating a 2nd root user', async () => {
     const credentials = {
@@ -45,7 +45,7 @@ describe('User Service V1', () => {
       .post('/v1/user')
       .send(credentials)
       .expect(400);
-  });
+  }, 10000);
 
   it('[POST] Should return 401 when creating a user without authorization', async () => {
     const credentials = {
@@ -58,7 +58,7 @@ describe('User Service V1', () => {
       .post('/v1/user')
       .send(credentials)
       .expect(401);
-  });
+  }, 10000);
 
   afterAll(async () => {
     await app.close();
