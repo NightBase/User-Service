@@ -49,17 +49,17 @@ import { Account } from '../Database/Models/account.model';
 })
 export class AccountModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CheckRootAccount).forRoutes({
-      path: 'v1/user',
-      method: RequestMethod.POST,
-    });
-
     consumer.apply(CheckCredentials).forRoutes({
       path: 'v1/user',
       method: RequestMethod.POST,
     });
 
     consumer.apply(AuthRequired).forRoutes({
+      path: '/*',
+      method: RequestMethod.POST,
+    });
+
+    consumer.apply(CheckRootAccount).forRoutes({
       path: 'v1/user',
       method: RequestMethod.POST,
     });
