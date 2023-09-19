@@ -5,12 +5,31 @@ on:
   pull_request:
     branches: [master, main]
 jobs:
-  lint:
+  Jest:
     runs-on: ubuntu-latest
+    container: node:18
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: nightbase
+          POSTGRES_PASSWORD: nightbase
+          POSTGRES_DB: nightbase
+        ports:
+          - 5432:5432
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm ci
-      - run: npm run test:e2e
+      
+      - name: Install Dependencies
+        run: npm ci
+
+      - name : Create Database
+        run: npm run db:generate
+     
