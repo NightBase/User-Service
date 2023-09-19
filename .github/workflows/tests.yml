@@ -17,6 +17,10 @@ jobs:
           POSTGRES_DB: nightbase
         ports:
           - 5432:5432
+      rabbitmq:
+        image: rabbitmq:3.11.23-management-alpine
+        ports:
+          - 5672:5672
 
     steps:
       - name: Checkout Repository
@@ -38,5 +42,6 @@ jobs:
       - name: Run Tests
         run: npm run test:e2e
         env:
+          BROKER_HOST: rabbitmq
           DB_HOST: postgres
      
