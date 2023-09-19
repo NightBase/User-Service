@@ -30,8 +30,13 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name : Create Database
+      - name: Create Database
         run: npm run db:generate
+        env:
+          DB_HOST: postgres
+
+      - name: Run Tests
+        run: npm run test
         env:
           DB_HOST: postgres
      
