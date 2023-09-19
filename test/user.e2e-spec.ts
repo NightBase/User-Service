@@ -16,7 +16,7 @@ describe('User Service V1', () => {
   });
 
   it('[POST] Should return 400 when creating a user without credentials', async () => {
-    await request(app.getHttpServer()).post('/v1/user').expect(400);
+    return request(app.getHttpServer()).post('/v1/user').expect(400);
   });
 
   it('[POST] Should successfully create a root user', async () => {
@@ -27,7 +27,7 @@ describe('User Service V1', () => {
       isRoot: 'true',
     };
 
-    await request(app.getHttpServer())
+    return request(app.getHttpServer())
       .post('/v1/user')
       .send(credentials)
       .expect(201);
@@ -41,7 +41,7 @@ describe('User Service V1', () => {
       isRoot: 'true',
     };
 
-    await request(app.getHttpServer())
+    return request(app.getHttpServer())
       .post('/v1/user')
       .send(credentials)
       .expect(400);
@@ -54,7 +54,7 @@ describe('User Service V1', () => {
       password: '12345',
     };
 
-    await request(app.getHttpServer())
+    return request(app.getHttpServer())
       .post('/v1/user')
       .send(credentials)
       .expect(401);
