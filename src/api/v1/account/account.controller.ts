@@ -13,7 +13,7 @@ export class AccountController {
   @Post()
   @HttpCode(201)
   createUser(@Body() body) {
-    return this.accountService.createUser(body);
+    return this.accountQueue.send({ cmd: 'createUser' }, body);
   }
 
   @MessagePattern({ cmd: 'createUser' })
