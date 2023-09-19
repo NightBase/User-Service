@@ -1,4 +1,4 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Inject, Post } from '@nestjs/common';
 import { ClientProxy, MessagePattern } from '@nestjs/microservices';
 import { ACCOUNT_SERVICE_NAME } from '@/utils/constants';
 import { AccountService } from './account.service';
@@ -11,8 +11,9 @@ export class AccountController {
   ) {}
 
   @Post()
+  @HttpCode(201)
   createUser(@Body() body) {
-    return this.accountQueue.send({ cmd: 'createUser' }, body);
+    return this.accountService.createUser(body);
   }
 
   @MessagePattern({ cmd: 'createUser' })
