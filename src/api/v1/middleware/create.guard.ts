@@ -1,18 +1,20 @@
 import { Op } from 'sequelize';
-import { HTTP_STATUS } from '@/utils/constants';
 
 import { Account } from '../Database/Models/account.model';
 
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { Credentials } from '../Database/Dto/create-account';
+import { ACCOUNT_SERVICE_NAME } from '@/utils/constants';
+import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class CheckCredentials implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const body: Credentials = req.body;
     if (!body.username || !body.password || !body.email) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).send({
+      return res.status(HttpStatus.BAD_REQUEST).send({
         message: 'Missing credentials',
       });
     }
@@ -20,7 +22,7 @@ export class CheckCredentials implements NestMiddleware {
       try {
         JSON.parse(body.isRoot);
       } catch (e) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).send({
+        return res.status(HttpStatus.BAD_REQUEST).send({
           message: 'Invalid value for isRoot',
         });
       }
@@ -42,7 +44,7 @@ export class CheckAccountExists implements NestMiddleware {
       },
     });
     if (acc) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).send({
+      return res.status(HttpStatus.BAD_REQUEST).send({
         message: 'Account already exists',
       });
     }
@@ -57,11 +59,50 @@ export class CheckRootAccount implements NestMiddleware {
     if (isRoot === 'true') {
       const acc = await Account.findOne({ where: { isRoot: true } });
       if (acc) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).send({
+        return res.status(HttpStatus.BAD_REQUEST).send({
           message: 'Cannot create root account',
         });
       }
     }
     next();
+  }
+}
+
+@Injectable()
+export class AuthRequired implements NestMiddleware {
+  constructor(
+    @Inject(ACCOUNT_SERVICE_NAME) private readonly accountQueue: ClientProxy,
+  ) {}
+
+  async use(req: Request, res: Response, next: (error?: NextFunction) => void) {
+    const { isRoot } = req.body;
+    const token = this.extractToken(req);
+    if (isRoot === 'false') {
+      if (!token) {
+        return res.status(HttpStatus.UNAUTHORIZED).send({
+          message: 'You must be logged in to perform this action',
+        });
+      }
+
+      const isValid = await lastValueFrom(
+        this.accountQueue.send({ cmd: 'isTokenValid' }, token),
+      );
+
+      if (!isValid) {
+        return res.status(HttpStatus.UNAUTHORIZED).send({
+          message: 'Token is invalid',
+        });
+      }
+    }
+    next();
+  }
+
+  private extractToken(req: Request) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return null;
+    }
+    const token = authHeader.split(' ')[1];
+    return token;
   }
 }
