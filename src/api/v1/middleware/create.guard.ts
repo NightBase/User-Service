@@ -5,7 +5,7 @@ import { Account } from '../Database/Models/account.model';
 import { HttpStatus, Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { Credentials } from '../Database/Dto/create-account';
-import { ACCOUNT_SERVICE_NAME } from '@/utils/constants';
+import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 
@@ -71,7 +71,8 @@ export class CheckRootAccount implements NestMiddleware {
 @Injectable()
 export class AuthRequired implements NestMiddleware {
   constructor(
-    @Inject(ACCOUNT_SERVICE_NAME) private readonly accountQueue: ClientProxy,
+    @Inject(AUTHENTICATION_SERVICE_NAME)
+    private readonly authQueue: ClientProxy,
   ) {}
 
   async use(req: Request, res: Response, next: (error?: NextFunction) => void) {
@@ -85,7 +86,7 @@ export class AuthRequired implements NestMiddleware {
       }
 
       const isValid = await lastValueFrom(
-        this.accountQueue.send({ cmd: 'isTokenValid' }, token),
+        this.authQueue.send({ cmd: 'isTokenValid' }, token),
       );
 
       if (!isValid) {

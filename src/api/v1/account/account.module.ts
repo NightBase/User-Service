@@ -10,6 +10,8 @@ import {
   ACCOUNT_SERVICE_NAME,
   BROKERS,
   ACCOUNT_QUEUE_NAME,
+  AUTHENTICATION_SERVICE_NAME,
+  AUTHENTICATION_QUEUE_NAME,
 } from '@/utils/constants';
 
 // V1
@@ -36,6 +38,19 @@ import { Account } from '../Database/Models/account.model';
         options: {
           urls: BROKERS,
           queue: ACCOUNT_QUEUE_NAME,
+          queueOptions: {
+            durable: false,
+          },
+        },
+      },
+    ]),
+    ClientsModule.register([
+      {
+        name: AUTHENTICATION_SERVICE_NAME,
+        transport: Transport.RMQ,
+        options: {
+          urls: BROKERS,
+          queue: AUTHENTICATION_QUEUE_NAME,
           queueOptions: {
             durable: false,
           },
