@@ -1,45 +1,26 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { BROKERS } from './utils/constants';
-
-// V1
-import { UserController } from './api/v1/account.controller';
-import { UserService } from './api/v1/account.service';
-// V1 Middleware
-import { CheckCredentials } from './api/v1/middleware/account';
+import { Module } from '@nestjs/common';
+import { SequelizeModule } from '@nestjs/sequelize';
 
 // Services
-import { ACCOUNT_SERVICE } from './utils/constants';
+import { AccountModule } from './api/v1/account.module';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: ACCOUNT_SERVICE,
-        transport: Transport.RMQ,
-        options: {
-          urls: BROKERS,
-          queue: 'user_queue',
-          queueOptions: {
-            durable: false,
-          },
-        },
+    AccountModule,
+    SequelizeModule.forRoot({
+      dialect: 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: 'NightBase-User',
+      autoLoadModels: true,
+      synchronize: true,
+      logging: false,
+      dialectOptions: {
+        application_name: 'NightBase-User',
       },
-    ]),
+    }),
   ],
-  controllers: [UserController],
-  providers: [UserService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CheckCredentials).forRoutes({
-      path: 'v1/user',
-      method: RequestMethod.POST,
-    });
-  }
-}
+export class AppModule {}
