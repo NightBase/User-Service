@@ -1,9 +1,10 @@
 import dotenv from 'dotenv';
 import { Sequelize } from 'sequelize';
+import { DATABASE_NAME } from './constants';
 
 dotenv.config();
 
-const dbName = 'NightBase-User';
+const dbName = DATABASE_NAME;
 
 const sequelize = new Sequelize({
   database: 'postgres', // Connect to the 'postgres' database first
