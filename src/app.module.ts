@@ -17,6 +17,11 @@ import { DATABASE_NAME } from './utils/constants';
       autoLoadModels: true,
       synchronize: true,
       logging: false,
+      pool: {
+        max: 10,
+        min: 0,
+        idle: 10000,
+      },
       dialectOptions: {
         application_name: 'NightBase-UserService',
       },
