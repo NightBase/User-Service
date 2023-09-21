@@ -1,33 +1,55 @@
-import { createHash } from 'crypto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ACCOUNT_SERVICE_NAME } from '@/utils/constants';
-import { Account } from '../Database/Models/account.model';
+import {
+  ACCOUNT_SERVICE_NAME,
+  AUTHENTICATION_SERVICE_NAME,
+} from '@/utils/constants';
+import { User } from '../Database/Models/user.model';
 import { Credentials } from '../Database/Dto/create-account';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class AccountService {
   constructor(
     @Inject(ACCOUNT_SERVICE_NAME)
     private readonly accountQueue: ClientProxy,
-    @InjectModel(Account) private account_model: typeof Account,
+    @Inject(AUTHENTICATION_SERVICE_NAME)
+    private readonly authQueue: ClientProxy,
+    @InjectModel(User) private UserModel: typeof User,
   ) {}
 
-  createUser(data: Credentials) {
-    const hash = createHash('sha256');
-    hash.update(data.password);
-    data.password = hash.digest('hex');
+  async createUser(data: Credentials) {
+    const authData = await lastValueFrom(
+      this.authQueue.send('Pawn:CreateAccount', data),
+    );
+    let isSuccess = false;
+    try {
+      isSuccess = JSON.parse(authData.success);
+    } catch {
+      isSuccess = false;
+    }
 
-    this.account_model.create({
-      username: data.username,
-      password: data.password,
-      email: data.email,
-      isRoot: data.isRoot,
-    });
+    if (!isSuccess) {
+      return {
+        success: isSuccess,
+        data: authData,
+      };
+    }
+
+    try {
+      await this.UserModel.create({
+        username: authData.username,
+        email: authData.email,
+        isRoot: authData.isRoot,
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     return {
-      message: 'Account created successfully',
+      success: isSuccess,
+      data: authData,
     };
   }
 }
