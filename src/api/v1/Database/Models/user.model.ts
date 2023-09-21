@@ -1,15 +1,21 @@
 import { Column, Model, Table } from 'sequelize-typescript';
 
 @Table
-export class Account extends Model {
+export class User extends Model {
   @Column
   declare username: string;
 
   @Column
-  declare password: string;
+  declare email: string;
 
   @Column
-  declare email: string;
+  declare firstName?: string;
+
+  @Column
+  declare lastName?: string;
+
+  @Column
+  declare avatar?: string;
 
   @Column({ defaultValue: false })
   declare isRoot: boolean;
