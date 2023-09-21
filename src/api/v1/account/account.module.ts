@@ -19,15 +19,12 @@ import { AccountController } from './account.controller';
 import { AccountService } from './account.service';
 
 // V1 Middleware
-import {
-  AuthRequired,
-  CheckAccountExists,
-  CheckCredentials,
-  CheckRootAccount,
-} from '../middleware/create.guard';
+import { CheckCredentials } from '../middleware/create.guard';
 
 // Models
-import { Account } from '../Database/Models/account.model';
+import { User } from '../Database/Models/user.model';
+import { Permission, Role } from '../Database/Models/role.model';
+import { Database } from '../Database/Models/database.model';
 
 @Module({
   imports: [
@@ -57,7 +54,7 @@ import { Account } from '../Database/Models/account.model';
         },
       },
     ]),
-    SequelizeModule.forFeature([Account]),
+    SequelizeModule.forFeature([User, Permission, Role, Database]),
   ],
   controllers: [AccountController],
   providers: [AccountService],
@@ -65,21 +62,6 @@ import { Account } from '../Database/Models/account.model';
 export class AccountModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(CheckCredentials).forRoutes({
-      path: 'v1/user',
-      method: RequestMethod.POST,
-    });
-
-    consumer.apply(AuthRequired).forRoutes({
-      path: '/*',
-      method: RequestMethod.POST,
-    });
-
-    consumer.apply(CheckRootAccount).forRoutes({
-      path: 'v1/user',
-      method: RequestMethod.POST,
-    });
-
-    consumer.apply(CheckAccountExists).forRoutes({
       path: 'v1/user',
       method: RequestMethod.POST,
     });
