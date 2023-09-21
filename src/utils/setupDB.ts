@@ -2,52 +2,48 @@ import dotenv from 'dotenv';
 import { Sequelize } from 'sequelize-typescript';
 import { DATABASE_NAME } from './constants';
 
-// Import your Sequelize models from separate files
-import { Permission } from '../api/v1/Database/Models/role.model'; // Replace with the actual paths
+import { Permission } from '../api/v1/Database/Models/role.model';
 
 dotenv.config();
 
 const dbName = DATABASE_NAME;
 
-let sequelize = new Sequelize({
-  database: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  dialect: 'postgres',
-});
-
-// Create the database if it doesn't exist
-sequelize
-  .query(`SELECT 1 FROM pg_database WHERE datname = '${dbName}'`)
-  .then(([results]) => {
-    if (!results.length) {
-      return sequelize.query(`CREATE DATABASE "${dbName}"`);
-    }
-  })
-  .then(() => {
-    console.log(`Database '${dbName}' created or already exists.`);
-  })
-  .catch((err) => {
-    console.error('Error creating database:', err);
+async function createDatabase() {
+  const sequelize = new Sequelize({
+    database: 'postgres',
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    dialect: 'postgres',
+    logging: false,
   });
+  const isDbExists = await sequelize.query(
+    `SELECT 1 FROM pg_database WHERE datname = '${dbName}'`,
+  );
+  if (!isDbExists[0].length) {
+    await sequelize.query(`CREATE DATABASE "${dbName}"`);
+    console.log(`Database '${dbName}' created.`);
+  } else {
+    console.log(`Database '${dbName}' already exists.`);
+  }
+  await sequelize.close();
+}
 
-sequelize = new Sequelize({
-  database: dbName,
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  dialect: 'postgres',
-});
-
-// Pre defined datas
-
-sequelize.addModels([Permission]);
-sequelize.sync({ alter: true }).then(() => {
-  Permission.destroy({ truncate: true });
-  Permission.bulkCreate([
+async function insertPreData() {
+  const sequelize = new Sequelize({
+    database: dbName,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    dialect: 'postgres',
+    logging: false,
+  });
+  sequelize.addModels([Permission]);
+  await sequelize.sync({ alter: true });
+  await Permission.destroy({ truncate: true });
+  await Permission.bulkCreate([
     {
       name: 'Read',
       description: 'To read data from the database',
@@ -79,4 +75,13 @@ sequelize.sync({ alter: true }).then(() => {
       alias: 'DROP_TABLE',
     },
   ]);
-});
+  console.log('Predefined data inserted.');
+  await sequelize.close();
+}
+
+async function setupDB() {
+  await createDatabase();
+  await insertPreData();
+}
+
+setupDB();
