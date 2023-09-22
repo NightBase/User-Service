@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { AccountModule } from './api/v1/account/account.module';
+import { UserModule } from './api/v1/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { DATABASE_NAME } from './utils/constants';
 
 @Module({
   imports: [
-    AccountModule,
+    UserModule,
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST,
