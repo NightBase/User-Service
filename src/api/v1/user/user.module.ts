@@ -23,6 +23,7 @@ import { CheckCredentials } from '../middleware/create.middleware';
 
 // Models
 import { User } from '../Database/Models/user.model';
+import { AuthRequired } from '../middleware/auth.middleware';
 
 @Module({
   imports: [
@@ -62,6 +63,10 @@ export class UserModule implements NestModule {
     consumer.apply(CheckCredentials).forRoutes({
       path: 'v1/user',
       method: RequestMethod.POST,
+    });
+    consumer.apply(AuthRequired).forRoutes({
+      path: 'v1/user/*',
+      method: RequestMethod.GET,
     });
   }
 }
