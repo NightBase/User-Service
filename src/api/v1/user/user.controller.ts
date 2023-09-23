@@ -1,7 +1,15 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { UserService } from './user.service';
-import { Credentials } from '../Database/Dto/create-account';
+import { Request } from 'express';
 
 @Controller('v1/user')
 export class UserController {
@@ -9,8 +17,10 @@ export class UserController {
 
   @Post()
   @HttpCode(201)
-  createUser(@Body() body) {
-    return this.userService.createUser(body);
+  @MessagePattern('NB-User:CreateUser')
+  createUser(@Body() body, @Req() req: Request) {
+    const cookies = req.cookies;
+    return this.userService.createUser(body, cookies['accessToken']);
   }
 
   @HttpCode(200)
@@ -18,10 +28,5 @@ export class UserController {
   getUser(@Param() params: any) {
     const username = params.username;
     return this.userService.getUser(username);
-  }
-
-  @MessagePattern('NB-User:CreateUser')
-  async createUserHandler(data: Credentials) {
-    return this.userService.createUser(data);
   }
 }
