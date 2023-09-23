@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { BROKERS, ACCOUNT_QUEUE_NAME } from './utils/constants';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -18,8 +19,8 @@ async function bootstrap() {
       },
     },
   });
-
   app.enableCors();
+  app.use(cookieParser());
   await app.startAllMicroservices();
   await app.listen(process.env.PORT || 5000);
   console.log(`🚀 User service is running on: ${await app.getUrl()}`);
