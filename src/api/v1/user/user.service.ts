@@ -20,10 +20,10 @@ export class UserService {
     @InjectModel(User) private UserModel: typeof User,
   ) {}
 
-  async createUser(@Body() body) {
+  async createUser(@Body() body, accessToken: string) {
     const data = body as Credentials;
     const authData = await lastValueFrom(
-      this.authQueue.send('NB-Auth:CreateAccount', data),
+      this.authQueue.send('NB-Auth:CreateAccount', { data, accessToken }),
     );
     const status = authData.status;
     const message = authData.message;
