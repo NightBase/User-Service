@@ -27,15 +27,59 @@ export class AuthRequired implements NestMiddleware {
     }
 
     // Check if the token is valid
-    const response = await lastValueFrom(
+    const isValid = await lastValueFrom(
       this.authQueue.send('NB-Auth:IsTokenValid', token),
     );
-    if (!response) {
-      // If the token is invalid
-      return res.status(HttpStatus.UNAUTHORIZED).send({
-        message: 'Invalid token',
-      }); // Return 401
+    console.log('is valid', isValid);
+    if (isValid.status && isValid.status !== HttpStatus.OK) {
+      return res.status(isValid.status).send(isValid.response);
     }
-    next(); // If the token is valid, continue
+
+    // Check if the token is expired
+    const isExpired = await lastValueFrom(
+      this.authQueue.send('NB-Auth:IsTokenExpired', token),
+    );
+    console.log('is expired', isExpired);
+    if (isExpired === false) return next();
+
+    // Check if the token is revoked
+    const isRevoked = await lastValueFrom(
+      this.authQueue.send('NB-Auth:IsTokenRevoked', token),
+    );
+    console.log('is revoked', isRevoked);
+
+    if (isRevoked) {
+      return res.status(HttpStatus.UNAUTHORIZED).send({
+        message: 'Your token is revoked',
+        logout: true,
+      });
+    }
+
+    if (!req.cookies) {
+      return res.status(HttpStatus.UNAUTHORIZED).send({
+        message: 'Cookies does not exist',
+        logout: true,
+      });
+    }
+
+    const refrestToken = req.cookies['refreshToken'];
+    if (!refrestToken) {
+      return res.status(HttpStatus.UNAUTHORIZED).send({
+        message: 'Refresh token is required',
+        logout: true,
+      });
+    }
+
+    const isRefreshed = await lastValueFrom(
+      this.authQueue.send('NB-Auth:RefreshToken', refrestToken),
+    );
+
+    if (isRefreshed.status && isRefreshed.status !== HttpStatus.OK) {
+      return res.status(isRefreshed.status).send(isRefreshed.response);
+    }
+
+    res.setHeader('Authorization', `Bearer ${isRefreshed}`);
+    console.log('refresh token', isRefreshed);
+    next();
   }
 }
