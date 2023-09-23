@@ -13,7 +13,4 @@ This microservice is responsible for handling all user related operations, such 
 
 - user creation
 - user profile management
-- user password management
-- user role management
-- user permissions management
-- user data management
+- user settings management
