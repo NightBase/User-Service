@@ -11,18 +11,20 @@ export class AuthRequired implements NestMiddleware {
     private readonly authQueue: ClientProxy,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
-    // Check if the token is presented
-    if (!req.headers.authorization) {
+    // Check if the cookies is presented
+    if (!req.cookies) {
       return res.status(HttpStatus.UNAUTHORIZED).send({
-        message: 'You have to login to perform this action',
+        message: 'Cookies does not exist',
+        logout: true,
       });
     }
 
-    // Check if the token is bearer
-    const [type, token] = req.headers.authorization.split(' ');
-    if (type !== 'Bearer') {
+    // Check if the token is presented
+    const token = req.cookies['accessToken'];
+    if (!token) {
       return res.status(HttpStatus.UNAUTHORIZED).send({
-        message: 'You must use bearer token to perform this action',
+        message: 'Token is required',
+        logout: true,
       });
     }
 
@@ -30,7 +32,6 @@ export class AuthRequired implements NestMiddleware {
     const isValid = await lastValueFrom(
       this.authQueue.send('NB-Auth:IsTokenValid', token),
     );
-    console.log('is valid', isValid);
     if (isValid.status && isValid.status !== HttpStatus.OK) {
       return res.status(isValid.status).send(isValid.response);
     }
@@ -39,25 +40,16 @@ export class AuthRequired implements NestMiddleware {
     const isExpired = await lastValueFrom(
       this.authQueue.send('NB-Auth:IsTokenExpired', token),
     );
-    console.log('is expired', isExpired);
     if (isExpired === false) return next();
 
     // Check if the token is revoked
     const isRevoked = await lastValueFrom(
       this.authQueue.send('NB-Auth:IsTokenRevoked', token),
     );
-    console.log('is revoked', isRevoked);
 
     if (isRevoked) {
       return res.status(HttpStatus.UNAUTHORIZED).send({
         message: 'Your token is revoked',
-        logout: true,
-      });
-    }
-
-    if (!req.cookies) {
-      return res.status(HttpStatus.UNAUTHORIZED).send({
-        message: 'Cookies does not exist',
         logout: true,
       });
     }
@@ -78,8 +70,10 @@ export class AuthRequired implements NestMiddleware {
       return res.status(isRefreshed.status).send(isRefreshed.response);
     }
 
-    res.setHeader('Authorization', `Bearer ${isRefreshed}`);
-    console.log('refresh token', isRefreshed);
+    res.cookie('accessToken', isRefreshed, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
     next();
   }
 }
