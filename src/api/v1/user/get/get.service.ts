@@ -3,6 +3,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
 import { User } from '../../../common/Database/Models/user.model';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserGetService {
@@ -29,6 +30,23 @@ export class UserGetService {
       );
     }
 
+    return user;
+  }
+
+  async getMe(token: string) {
+    const myself = await lastValueFrom(
+      this.authQueue.send('NB-Auth:WhoAmI', token),
+    );
+    if (!myself) {
+      throw new HttpException(
+        {
+          message: 'Token not found in session dataasdasd',
+          logout: true,
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const user = await this.getUser(myself);
     return user;
   }
 }
