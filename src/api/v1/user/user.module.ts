@@ -7,9 +7,7 @@ import {
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
-  ACCOUNT_SERVICE_NAME,
   BROKERS,
-  ACCOUNT_QUEUE_NAME,
   AUTHENTICATION_SERVICE_NAME,
   AUTHENTICATION_QUEUE_NAME,
 } from '@/utils/constants';
@@ -28,19 +26,6 @@ import { UserGetService } from './get/get.service';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: ACCOUNT_SERVICE_NAME,
-        transport: Transport.RMQ,
-        options: {
-          urls: BROKERS,
-          queue: ACCOUNT_QUEUE_NAME,
-          queueOptions: {
-            durable: false,
-          },
-        },
-      },
-    ]),
     ClientsModule.register([
       {
         name: AUTHENTICATION_SERVICE_NAME,
