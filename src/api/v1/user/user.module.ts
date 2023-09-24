@@ -16,14 +16,15 @@ import {
 
 // V1
 import { UserController } from './user.controller';
-import { UserService } from './user.service';
+import { UserCreateService } from './create/create.service';
 
 // V1 Middleware
 import { CheckCredentials } from '../middleware/create.middleware';
 
 // Models
-import { User } from '../Database/Models/user.model';
+import { User } from '../../common/Database/Models/user.model';
 import { AuthRequired } from '../middleware/auth.middleware';
+import { UserGetService } from './get/get.service';
 
 @Module({
   imports: [
@@ -56,7 +57,7 @@ import { AuthRequired } from '../middleware/auth.middleware';
     SequelizeModule.forFeature([User]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserCreateService, UserGetService],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

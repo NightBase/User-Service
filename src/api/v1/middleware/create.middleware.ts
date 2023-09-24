@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { Credentials } from '../Database/Dto/create-account';
+import { Credentials } from '../../common/Database/Dto/create-account';
 
 @Injectable()
 export class CheckCredentials implements NestMiddleware {
