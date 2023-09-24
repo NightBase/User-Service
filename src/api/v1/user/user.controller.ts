@@ -27,6 +27,13 @@ export class UserController {
     return this.userCreateService.createUser(body, cookies['accessToken']);
   }
 
+  @Get('@me')
+  @HttpCode(200)
+  getMe(@Req() req: Request) {
+    const cookies = req.cookies;
+    return this.userGetService.getMe(cookies['accessToken']);
+  }
+
   @HttpCode(200)
   @Get(':username')
   getUser(@Param() params: any) {
