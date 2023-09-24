@@ -8,12 +8,12 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
-import { User } from '../Database/Models/user.model';
-import { Credentials } from '../Database/Dto/create-account';
+import { User } from '../../../common/Database/Models/user.model';
+import { Credentials } from '../../../common/Database/Dto/create-account';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class UserService {
+export class UserCreateService {
   constructor(
     @Inject(AUTHENTICATION_SERVICE_NAME)
     private readonly authQueue: ClientProxy,
@@ -46,25 +46,5 @@ export class UserService {
     return {
       message,
     };
-  }
-
-  async getUser(username: string) {
-    const user = await this.UserModel.findOne({
-      where: {
-        username,
-      },
-      attributes: { exclude: ['id'] },
-    });
-
-    if (!user) {
-      throw new HttpException(
-        {
-          message: 'User not found',
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return user;
   }
 }
