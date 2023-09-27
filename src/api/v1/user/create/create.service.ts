@@ -1,4 +1,6 @@
-import { InjectModel } from '@nestjs/sequelize';
+import { lastValueFrom } from 'rxjs';
+
+import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
 import {
   Body,
   HttpException,
@@ -7,10 +9,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
-import { User } from '../../../common/Database/Models/user.model';
+import { InjectModel } from '@nestjs/sequelize';
+
 import { Credentials } from '../../../common/Database/Dto/create-account';
-import { lastValueFrom } from 'rxjs';
+import { User } from '../../../common/Database/Models/user.model';
 
 @Injectable()
 export class UserCreateService {

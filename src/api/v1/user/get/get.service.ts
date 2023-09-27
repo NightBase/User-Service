@@ -1,9 +1,11 @@
-import { InjectModel } from '@nestjs/sequelize';
+import { lastValueFrom } from 'rxjs';
+
+import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
+import { InjectModel } from '@nestjs/sequelize';
+
 import { User } from '../../../common/Database/Models/user.model';
-import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserGetService {
