@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { UserModule } from './api/v1/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
+import { SequelizeModule } from '@nestjs/sequelize';
+
+import { UserModule } from './api/v1/user/user.module';
 import { DATABASE_NAME } from './utils/constants';
 
 @Module({

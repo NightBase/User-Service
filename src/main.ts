@@ -1,9 +1,11 @@
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import { AppModule } from './app.module';
-import { BROKERS, ACCOUNT_QUEUE_NAME } from './utils/constants';
+
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import cookieParser from 'cookie-parser';
+
+import { AppModule } from './app.module';
+import { ACCOUNT_QUEUE_NAME, BROKERS } from './utils/constants';
 
 dotenv.config();
 
