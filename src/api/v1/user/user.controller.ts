@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 import {
   Body,
   Controller,
@@ -6,13 +8,17 @@ import {
   Param,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
+
 import { UserCreateService } from './create/create.service';
-import { Request } from 'express';
 import { UserGetService } from './get/get.service';
+import { CheckCredentials } from './guards/create.guard';
+import { CookieGuard, TokenRefreshGuard } from './guards/token.guard';
 
 @Controller('v1/user')
+@UseGuards(CookieGuard, TokenRefreshGuard)
 export class UserController {
   constructor(
     private readonly userCreateService: UserCreateService,
@@ -21,6 +27,7 @@ export class UserController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(CheckCredentials)
   @MessagePattern('NB-User:CreateUser')
   createUser(@Body() body, @Req() req: Request) {
     const cookies = req.cookies;
