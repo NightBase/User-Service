@@ -24,19 +24,14 @@ export class UserCreateService {
 
   async createUser(@Body() body, accessToken: string) {
     const data = body as Credentials;
-    const authData = await lastValueFrom(
+    const authData: any = await lastValueFrom(
       this.authQueue.send('NB-Auth:CreateAccount', { data, accessToken }),
     );
     const status = authData.status;
-    const message = authData.message;
+    const message = authData.response;
 
     if (status !== HttpStatus.CREATED) {
-      throw new HttpException(
-        {
-          message,
-        },
-        status,
-      );
+      throw new HttpException(message, status);
     }
 
     await this.UserModel.create({
@@ -45,8 +40,6 @@ export class UserCreateService {
       isRoot: authData.isRoot,
     });
 
-    return {
-      message,
-    };
+    return { message: authData.message };
   }
 }
