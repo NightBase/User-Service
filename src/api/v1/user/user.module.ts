@@ -9,6 +9,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 
 import { User } from '../../common/Database/Models/user.model';
 import { UserCreateService } from './create/create.service';
+import { UserDeleteService } from './delete/delete.service';
 import { UserGetService } from './get/get.service';
 import { UserController } from './user.controller';
 
@@ -30,6 +31,6 @@ import { UserController } from './user.controller';
     SequelizeModule.forFeature([User]),
   ],
   controllers: [UserController],
-  providers: [UserCreateService, UserGetService],
+  providers: [UserCreateService, UserGetService, UserDeleteService],
 })
 export class UserModule {}
