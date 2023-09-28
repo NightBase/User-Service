@@ -1,4 +1,4 @@
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 import { AUTHENTICATION_SERVICE_NAME } from '@/utils/constants';
 import {
@@ -11,9 +11,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 
 export class CookieGuard implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     if (
       request.cookies &&
@@ -21,7 +19,7 @@ export class CookieGuard implements CanActivate {
     ) {
       throw new HttpException(
         {
-          message: 'Cookies do not exist',
+          message: 'You have to authenticate to access this resource',
           logout: true,
         },
         HttpStatus.BAD_REQUEST,
@@ -41,6 +39,7 @@ export class TokenRefreshGuard implements CanActivate {
     const response = context.switchToHttp().getResponse();
 
     const accessToken = request.cookies['accessToken'];
+    if (!accessToken) return true;
 
     await this.isTokenValid(accessToken);
     const isExpired = await this.isTokenExpired(accessToken);
